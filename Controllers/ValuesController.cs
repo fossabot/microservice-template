@@ -14,7 +14,7 @@ namespace microservice_template.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
         {
-            return new string[] { "value1", "value2" };
+            return new string[] { "value1-newversion", "value2-newversion" };
         }
 
         // GET api/values/5
