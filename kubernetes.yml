@@ -1,0 +1,71 @@
+﻿apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: microservice-template-config
+data:
+  appsettings.json: |
+    {
+      "message": "ggs Microservice Template says: Hello!",
+
+      "info": {
+        "author": "Kia Armani"
+      }
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: microservice-template
+  labels:
+    app: microservice-template
+spec:
+  type: NodePort
+  ports:
+  - port: 5000
+  selector:
+    app: microservice-template
+---
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: microservice-template
+spec:
+  replicas: 2
+  minReadySeconds: 60
+  template:
+    metadata:
+      labels:
+        app: microservice-template
+    spec:
+      containers:
+      - name: microservice-template
+        image: "ggsdocker/microservice-template"
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 5000
+        livenessProbe:
+          httpGet:
+            path: /system/health
+            port: 5000
+          initialDelaySeconds: 30
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /system/info
+            port: 5000
+          timeoutSeconds: 10
+        volumeMounts:
+        - name: microservice-template-config-volume
+          mountPath: /config
+          readOnly: true
+      volumes:
+      - name: microservice-template-config-volume
+        configMap:
+          name: microservice-template-config
